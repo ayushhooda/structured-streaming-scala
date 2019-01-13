@@ -6,7 +6,7 @@ import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
 object KafkaUtils {
 
   val config: Config = ConfigFactory.load()
-  
+
   /**
     * creates a kafka source.
     * @param spark - spark session for application.
@@ -17,8 +17,8 @@ object KafkaUtils {
     val df = spark
       .readStream
       .format("kafka")
-      .option("kafka.bootstrap.servers", "localhost:9092")
-      .option("group.id", "group1")
+      .option("kafka.bootstrap.servers", config.getString("kafka.server"))
+      .option("group.id", config.getString("kafka.group.id"))
       .option("subscribe", topic)
       .load
     func(df)
@@ -34,7 +34,7 @@ object KafkaUtils {
     ds.toDF
       .writeStream
       .format("kafka")
-      .option("kafka.bootstrap.servers", "localhost:9092")
+      .option("kafka.bootstrap.servers", config.getString("kafka.server"))
       .option("topic", topic)
       .start
       .awaitTermination()

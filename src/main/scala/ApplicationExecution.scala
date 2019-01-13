@@ -9,7 +9,9 @@ object ApplicationExecution extends App {
     .appName("structured-streaming-demo")
     .getOrCreate()
 
+
+
   // For implicit conversions like converting RDDs to DataFrames
-  //  import sparkSession.implicits._
+    import sparkSession.implicits.
 
 }
