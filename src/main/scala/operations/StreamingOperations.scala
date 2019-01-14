@@ -1,26 +1,24 @@
 package operations
 
+import models.Temperature
 import org.apache.spark.sql.expressions.scalalang.typed
 import org.apache.spark.sql.{Dataset, Encoder, KeyValueGroupedDataset}
 
 object StreamingOperations {
 
-  case class Temperature(place: String, farhenheit: Float)
-  val roomTemperature = 56
+  val roomTemperature = 73.4
 
   // Selection Query
-
   /**
     * filters data on basis of temperature of places greater than room temperature
     * @param ds - dataset of temperature
     * @return - dataset of places having temperature greater than room temperature
     */
   def filterTemp(ds: Dataset[Temperature])(implicit stringEncoder: Encoder[String]): Dataset[String] = {
-    ds.filter(_.farhenheit > roomTemperature).map(_.place)
+    ds.filter(_.fahrenheit > roomTemperature).map(_.place)
   }
 
   // Projection Query
-
   /**
     * projects all places
     * @param ds - dataset of temperature
@@ -31,7 +29,6 @@ object StreamingOperations {
   }
 
   // Aggregation Query
-
   /**
     * finds out aggregate temperature for particular places
     * @param ds - dataset of temperature
@@ -39,7 +36,7 @@ object StreamingOperations {
     * @return - dataset of average temperature for all places
     */
   def averageTemperature(ds: Dataset[Temperature])(implicit stringEncoder: Encoder[String]): Dataset[(String, Double)] = {
-    ds.groupByKey(_.place).agg(typed.avg(_.farhenheit))
+    ds.groupByKey(_.place).agg(typed.avg(_.fahrenheit))
   }
 
 }

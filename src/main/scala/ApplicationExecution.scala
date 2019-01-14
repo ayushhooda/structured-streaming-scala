@@ -12,6 +12,6 @@ object ApplicationExecution extends App {
 
 
   // For implicit conversions like converting RDDs to DataFrames
-    import sparkSession.implicits.
+    import sparkSession.implicits._
 
 }
