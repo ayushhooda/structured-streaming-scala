@@ -16,7 +16,7 @@ object KafkaUtils {
     * @param func - higher order function to convert DataFrame to Dataset of type T.
     * @return - DataFrame
     */
-  def createSource[T](spark: SparkSession, topic: String, schema: StructType, func: DataFrame => Dataset[T]): Dataset[T] = {
+  def createSource[T](spark: SparkSession, topic: String, func: DataFrame => Dataset[T])(implicit schema: StructType): Dataset[T] = {
     val df = spark
       .readStream
       .schema(schema)

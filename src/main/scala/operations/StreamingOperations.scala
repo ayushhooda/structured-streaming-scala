@@ -44,8 +44,6 @@ object StreamingOperations {
   // 2. stream-stream join
   // 3. watermarking concept
 
-  def joinedData(stream1: Dataset[Temperature], stream2: Dataset[String]): Dataset[(String, Temperature)] = {
-
-  }
+  def joinedData(stream1: Dataset[Temperature], stream2: Dataset[String]): Dataset[(String, Temperature)] = ???
 
 }
