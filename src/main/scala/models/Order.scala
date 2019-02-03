@@ -6,7 +6,6 @@ import schema.SchemaUtils.orderSchema
 
 /**
   * Structure of Order Details
-  *
   * @param orderId - order id of order
   * @param product - product with it's count
   * @param outletId - outlet id of outlet to which the order belongs
@@ -14,6 +13,14 @@ import schema.SchemaUtils.orderSchema
 case class Order(orderId: String, product: List[(Product, Int)], outletId: String)
 
 object Order {
+
+  /**
+    * Creates Dataset of type Order
+    * @param sparkSession - Spark session
+    * @param topic - Kafka topic
+    * @param orderEncoder - implicit encoder of type Order
+    * @return - Dataset of Order
+    */
   def getOrderDS(sparkSession: SparkSession, topic: String)(implicit orderEncoder: Encoder[Order]): Dataset[Order] = {
     createSource[Order](sparkSession, topic, (df: DataFrame) => df.as[Order])
   }

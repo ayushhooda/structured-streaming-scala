@@ -1,16 +1,15 @@
 package operations
 
-import models.Temperature
+import models.{Outlet, Temperature, Product, Order}
 import org.apache.spark.sql.expressions.scalalang.typed
-import org.apache.spark.sql.{Dataset, Encoder, KeyValueGroupedDataset}
+import org.apache.spark.sql.{Dataset, Encoder}
 
 object StreamingOperations {
 
   val roomTemperature = 73.4
 
-  // Selection Query
   /**
-    * filters data on basis of temperature of places greater than room temperature
+    * Selection Query - Filters data on basis of temperature of places greater than room temperature
     * @param ds - dataset of temperature
     * @return - dataset of places having temperature greater than room temperature
     */
@@ -18,9 +17,8 @@ object StreamingOperations {
     ds.filter(_.fahrenheit > roomTemperature).map(_.place)
   }
 
-  // Projection Query
   /**
-    * projects all places
+    * Projection Query - Projects all places
     * @param ds - dataset of temperature
     * @return - dataset of all places
     */
@@ -28,9 +26,8 @@ object StreamingOperations {
     ds.map(_.place)
   }
 
-  // Aggregation Query
   /**
-    * finds out aggregate temperature for particular places
+    * Aggregation Query - Finds out aggregate temperature for particular places
     * @param ds - dataset of temperature
     * @param stringEncoder
     * @return - dataset of average temperature for all places
@@ -44,6 +41,20 @@ object StreamingOperations {
   // 2. stream-stream join
   // 3. watermarking concept
 
-  def joinedData(stream1: Dataset[Temperature], stream2: Dataset[String]): Dataset[(String, Temperature)] = ???
+  def staticStaticJoin(outletData: Dataset[Outlet], productData: Dataset[Product])
+                      (implicit stringOutletEncoder: Encoder[(String, Outlet)]) = {
+    val outletDataMap = outletData.map(x=>x.place -> x)
+    val productDataMap = productData.map(x=>x.)
+  }
+
+  /**
+    * Left Outer Join - Joins the temperature data with the outlet data
+    * @param stream - temperature stream
+    * @param static - static outlet data
+    * @return - temperature data joined with outlet details if the outlet exists corresponding to that place
+    */
+  def outlet(stream: Dataset[Temperature], static: Dataset[Outlet]): Dataset[(Temperature, Outlet)] = {
+    stream.jo
+  }
 
 }

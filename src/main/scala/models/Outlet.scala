@@ -6,7 +6,6 @@ import schema.SchemaUtils.outletSchema
 
 /**
   * Structure of the Outlet
-  *
   * @param id - outlet id
   * @param name - outlet name
   * @param place - outlet location
@@ -15,6 +14,14 @@ import schema.SchemaUtils.outletSchema
 case class Outlet(id: String, name: String, place: String, menu: List[Product])
 
 object Outlet {
+
+  /**
+    * Creates Dataset of type Outlet
+    * @param sparkSession - Spark Session
+    * @param topic - Kafka topic
+    * @param outletEncoder - Encoder of type Outlet
+    * @return - Dataset of type Outlet
+    */
   def getOutletDS(sparkSession: SparkSession, topic: String)(implicit outletEncoder: Encoder[Outlet]): Dataset[Outlet] = {
     createSource[Outlet](sparkSession, topic, (df: DataFrame) => df.as[Outlet])
   }
