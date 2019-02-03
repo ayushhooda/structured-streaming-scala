@@ -42,12 +42,10 @@ object KafkaUtils {
     */
   def createSink[T](ds: Dataset[T], topic: String): Unit = {
     ds.toDF
-      //.selectExpr("CAST(value AS STRING)")
       .writeStream
       .format("kafka")
       .option("kafka.bootstrap.servers", config.getString("kafka.server"))
       .option("topic", topic)
-      .option("checkpointLocation", "fake-hdfs")
       .start
       .awaitTermination()
   }
