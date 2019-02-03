@@ -44,7 +44,7 @@ object StreamingOperations {
   def staticStaticJoin(outletData: Dataset[Outlet], productData: Dataset[Product])
                       (implicit stringOutletEncoder: Encoder[(String, Outlet)]) = {
     val outletDataMap = outletData.map(x=>x.place -> x)
-    val productDataMap = productData.map(x=>x.)
+    //val productDataMap = productData.map(x=>x.)
   }
 
   /**
@@ -53,8 +53,8 @@ object StreamingOperations {
     * @param static - static outlet data
     * @return - temperature data joined with outlet details if the outlet exists corresponding to that place
     */
-  def outlet(stream: Dataset[Temperature], static: Dataset[Outlet]): Dataset[(Temperature, Outlet)] = {
-    stream.jo
-  }
+  //def outlet(stream: Dataset[Temperature], static: Dataset[Outlet]): Dataset[(Temperature, Outlet)] = {
+   // stream.jo
+  //}
 
 }

@@ -3,6 +3,7 @@ package kafka
 import com.typesafe.config.{Config, ConfigFactory}
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
+import org.apache.spark.sql.functions.from_json
 
 object KafkaUtils {
 
@@ -17,14 +18,19 @@ object KafkaUtils {
     * @return - DataFrame
     */
   def createSource[T](spark: SparkSession, topic: String, func: DataFrame => Dataset[T])(implicit schema: StructType): Dataset[T] = {
+    import spark.implicits._
     val df = spark
       .readStream
-      .schema(schema)
       .format("kafka")
       .option("kafka.bootstrap.servers", config.getString("kafka.server"))
       .option("group.id", config.getString("kafka.group.id"))
+      .option("auto.offset.reset", "earliest")
       .option("subscribe", topic)
-      .load
+      .load()
+      .selectExpr("CAST(value AS STRING)")
+      .as[String]
+      .select(from_json($"value", schema).as("data"))
+      .select("data.*")
     func(df)
   }
 
@@ -36,10 +42,12 @@ object KafkaUtils {
     */
   def createSink[T](ds: Dataset[T], topic: String): Unit = {
     ds.toDF
+      //.selectExpr("CAST(value AS STRING)")
       .writeStream
       .format("kafka")
       .option("kafka.bootstrap.servers", config.getString("kafka.server"))
       .option("topic", topic)
+      .option("checkpointLocation", "fake-hdfs")
       .start
       .awaitTermination()
   }
