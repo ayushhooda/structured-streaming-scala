@@ -24,25 +24,26 @@ object InsertDataToKafka extends App {
     val a = (new Gson).toJson(temp)
     val record = new ProducerRecord(temperatureTopic, "key", a)
     producer.send(record)
+    Thread.sleep(100)
   }
 
-  for(product <- ProductData.productData) {
-    val a = (new Gson).toJson(product)
-    val record = new ProducerRecord(productTopic, "key", a)
-    producer.send(record)
-  }
-
-  for(outlet <- OutletData.outletData) {
-    val a = (new Gson).toJson(outlet)
-    val record = new ProducerRecord(outletTopic, "key", a)
-    producer.send(record)
-  }
-
-  for(order <- OrderData.orderData) {
-    val a = (new Gson).toJson(order)
-    val record = new ProducerRecord(orderTopic, "key", a)
-    producer.send(record)
-  }
+//  for(product <- ProductData.productData) {
+//    val a = (new Gson).toJson(product)
+//    val record = new ProducerRecord(productTopic, "key", a)
+//    producer.send(record)
+//  }
+//
+//  for(outlet <- OutletData.outletData) {
+//    val a = (new Gson).toJson(outlet)
+//    val record = new ProducerRecord(outletTopic, "key", a)
+//    producer.send(record)
+//  }
+//
+//  for(order <- OrderData.orderData) {
+//    val a = (new Gson).toJson(order)
+//    val record = new ProducerRecord(orderTopic, "key", a)
+//    producer.send(record)
+//  }
 
   producer.close()
 

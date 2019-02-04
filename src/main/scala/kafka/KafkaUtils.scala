@@ -15,7 +15,7 @@ object KafkaUtils {
     * @param topic - kafka topic from where is data is to be read.
     * @param schema - schema for the Json to be read from Kafka.
     * @param func - higher order function to convert DataFrame to Dataset of type T.
-    * @return - DataFrame
+    * @return - Dataset of type T
     */
   def createSource[T](spark: SparkSession, topic: String, func: DataFrame => Dataset[T])(implicit schema: StructType): Dataset[T] = {
     import spark.implicits._
@@ -24,7 +24,8 @@ object KafkaUtils {
       .format("kafka")
       .option("kafka.bootstrap.servers", config.getString("kafka.server"))
       .option("group.id", config.getString("kafka.group.id"))
-      .option("auto.offset.reset", "earliest")
+      .option("startingOffsets", "earliest")
+      .option("maxOffsetsPerTrigger", 1)
       .option("subscribe", topic)
       .load()
       .selectExpr("CAST(value AS STRING)")
@@ -41,8 +42,7 @@ object KafkaUtils {
     * @tparam T - structure of data that is to be written
     */
   def createSink[T](ds: Dataset[T], topic: String): Unit = {
-    ds.toDF
-      .writeStream
+    ds.writeStream
       .format("kafka")
       .option("kafka.bootstrap.servers", config.getString("kafka.server"))
       .option("topic", topic)

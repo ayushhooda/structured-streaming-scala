@@ -6,7 +6,7 @@ import org.apache.spark.sql.{Dataset, Encoder}
 
 object StreamingOperations {
 
-  val roomTemperature = 73.4
+  val roomTemperature = 27
 
   /**
     * Selection Query - Filters data on basis of temperature of places greater than room temperature
