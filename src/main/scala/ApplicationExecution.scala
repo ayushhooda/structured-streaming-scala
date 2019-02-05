@@ -35,8 +35,11 @@ object ApplicationExecution extends App {
   // Creating kafka source for product data
   val productDS: Dataset[Product] = Product.getProductDS(sparkSession, "kafka.productTopic")
 
-  filteredTemperature./*withWatermark("data", "1 seconds").*/writeStream.outputMode("update")
-    .format("console").start().awaitTermination()
+  // Indicates if dataset/dataframe is streaming or not
+  println("------------------" + allPlaces.isStreaming)
+
+  allPlaces.writeStream//.outputMode("complete")
+    .format("console").option("numRows", 50).start().awaitTermination()
 
 
 
