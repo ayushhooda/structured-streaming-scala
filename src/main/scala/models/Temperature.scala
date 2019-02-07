@@ -23,4 +23,8 @@ object Temperature {
   def getTemperatureDS(sparkSession: SparkSession, topic: String)(implicit temperatureEncoder: Encoder[Temperature]): Dataset[Temperature] = {
     createSource[Temperature](sparkSession, topic, (df: DataFrame) => df.as[Temperature])
   }
+
+  def saveTemperature(sparkSession: SparkSession, ds: Dataset[Temperature], topic: String): Unit = {
+    createSink[Temperature](sparkSession, ds, topic)
+  }
 }

@@ -1,8 +1,9 @@
 import com.typesafe.config.ConfigFactory
+import kafka.KafkaUtils
 import org.apache.spark.sql.{Dataset, SparkSession}
 import models.{Order, Outlet, Product, Temperature}
 import operations.StreamingOperations
-
+import schema.SchemaUtils.temperatureSchema
 object ApplicationExecution extends App {
 
   val config = ConfigFactory.load()
@@ -12,6 +13,7 @@ object ApplicationExecution extends App {
     .master("local")
     .appName("structured-streaming-demo")
     .getOrCreate()
+  sparkSession.sparkContext.setLogLevel("WARN")
   sparkSession.conf.set("spark.sql.streaming.checkpointLocation", "fake-hdfs")
 
   // For implicit conversions like converting RDDs to DataFrames
@@ -38,8 +40,19 @@ object ApplicationExecution extends App {
   // Indicates if dataset/dataframe is streaming or not
   println("------------------" + allPlaces.isStreaming)
 
-  allPlaces.writeStream//.outputMode("complete")
-    .format("console").option("numRows", 50).start().awaitTermination()
+  //allPlaces.writeStream.format("console").option("numRows", 50).start().awaitTermination()
+
+  //Temperature.saveTemperature(sparkSession, filteredTemperature, config.getString("kafka.filteredTemperatureTopic"))
+
+
+
+  val agg = KafkaUtils.createSourceForAggregation(sparkSession, config.getString("kafka.temperatureTopic"))
+  import org.apache.spark.sql.functions._
+  //agg.writeStream.format("console").outputMode("append").start().awaitTermination()
+  agg.groupBy(window(col("timestamp"), "4 seconds", "2 seconds"),
+    col("place")).count()
+   //.withWatermark("timestamp", "1 minutes")
+   .writeStream.format("console").outputMode("complete").start().awaitTermination()
 
 
 

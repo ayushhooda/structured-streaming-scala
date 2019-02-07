@@ -1,9 +1,12 @@
 package kafka
 
+import java.sql.Timestamp
+
 import com.typesafe.config.{Config, ConfigFactory}
-import org.apache.spark.sql.types.StructType
-import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
-import org.apache.spark.sql.functions.from_json
+import models.Temperature
+import org.apache.spark.sql.types.{StructType, TimestampType}
+import org.apache.spark.sql.{DataFrame, Dataset, Encoder, SparkSession}
+import org.apache.spark.sql.functions._
 
 object KafkaUtils {
 
@@ -35,14 +38,39 @@ object KafkaUtils {
     func(df)
   }
 
+  def createSourceForAggregation(spark: SparkSession, topic: String)
+                                   (implicit schema: StructType) = {
+    import spark.implicits._
+    spark
+      .readStream
+      .format("kafka")
+      .option("kafka.bootstrap.servers", config.getString("kafka.server"))
+      .option("group.id", config.getString("kafka.group.id"))
+      .option("startingOffsets", "earliest")
+      .option("maxOffsetsPerTrigger", 5)
+      .option("subscribe", topic)
+      .option("includeTimestamp", true)
+      .load()
+      .select(from_json(col("value").cast("STRING"), schema).as("data"),
+        col("timestamp").cast("TIMESTAMP").as("timestamp"))
+      //.select(col("data"), col("timestamp"))
+      //.as[(Temperature, Long)]
+      .select(col("data.*"), col("timestamp"))
+      //.as[(String, Double, Timestamp)].map {
+        //case (place, fahrenheit, timestamp) => (Temperature(place, fahrenheit), timestamp)
+      //}
+  }
+
   /**
     * creates a kafka sink
     * @param ds - Dataset
     * @param topic - kafka topic where data is to be written
     * @tparam T - structure of data that is to be written
     */
-  def createSink[T](ds: Dataset[T], topic: String): Unit = {
-    ds.writeStream
+  def createSink[T](spark: SparkSession, ds: Dataset[T], topic: String): Unit = {
+    import spark.implicits._
+    ds.map(_.toString.getBytes).toDF("value")
+      .writeStream
       .format("kafka")
       .option("kafka.bootstrap.servers", config.getString("kafka.server"))
       .option("topic", topic)

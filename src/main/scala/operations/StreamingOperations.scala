@@ -13,8 +13,8 @@ object StreamingOperations {
     * @param ds - dataset of temperature
     * @return - dataset of places having temperature greater than room temperature
     */
-  def filterTemp(ds: Dataset[Temperature])(implicit stringEncoder: Encoder[String]): Dataset[String] = {
-    ds.filter(_.fahrenheit > roomTemperature).map(_.place)
+  def filterTemp(ds: Dataset[Temperature])(implicit stringEncoder: Encoder[String]): Dataset[Temperature] = {
+    ds.filter(_.fahrenheit > roomTemperature)
   }
 
   /**
