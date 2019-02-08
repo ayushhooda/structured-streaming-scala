@@ -40,25 +40,20 @@ object KafkaUtils {
 
   def createSourceForAggregation(spark: SparkSession, topic: String)
                                    (implicit schema: StructType) = {
-    import spark.implicits._
+
     spark
       .readStream
       .format("kafka")
       .option("kafka.bootstrap.servers", config.getString("kafka.server"))
       .option("group.id", config.getString("kafka.group.id"))
       .option("startingOffsets", "earliest")
-      .option("maxOffsetsPerTrigger", 5)
+      .option("maxOffsetsPerTrigger", 50)
       .option("subscribe", topic)
       .option("includeTimestamp", true)
       .load()
       .select(from_json(col("value").cast("STRING"), schema).as("data"),
         col("timestamp").cast("TIMESTAMP").as("timestamp"))
-      //.select(col("data"), col("timestamp"))
-      //.as[(Temperature, Long)]
       .select(col("data.*"), col("timestamp"))
-      //.as[(String, Double, Timestamp)].map {
-        //case (place, fahrenheit, timestamp) => (Temperature(place, fahrenheit), timestamp)
-      //}
   }
 
   /**

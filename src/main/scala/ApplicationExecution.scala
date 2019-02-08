@@ -3,7 +3,10 @@ import kafka.KafkaUtils
 import org.apache.spark.sql.{Dataset, SparkSession}
 import models.{Order, Outlet, Product, Temperature}
 import operations.StreamingOperations
+import org.apache.spark.sql.expressions.scalalang.typed
 import schema.SchemaUtils.temperatureSchema
+import org.apache.spark.sql.functions._
+
 object ApplicationExecution extends App {
 
   val config = ConfigFactory.load()
@@ -40,19 +43,23 @@ object ApplicationExecution extends App {
   // Indicates if dataset/dataframe is streaming or not
   println("------------------" + allPlaces.isStreaming)
 
+
+  // Projecttion Query
   //allPlaces.writeStream.format("console").option("numRows", 50).start().awaitTermination()
 
+
+  // Selection Query
   //Temperature.saveTemperature(sparkSession, filteredTemperature, config.getString("kafka.filteredTemperatureTopic"))
 
 
 
   val agg = KafkaUtils.createSourceForAggregation(sparkSession, config.getString("kafka.temperatureTopic"))
-  import org.apache.spark.sql.functions._
+
   //agg.writeStream.format("console").outputMode("append").start().awaitTermination()
   agg.groupBy(window(col("timestamp"), "4 seconds", "2 seconds"),
     col("place")).count()
    //.withWatermark("timestamp", "1 minutes")
-   .writeStream.format("console").outputMode("complete").start().awaitTermination()
+   .writeStream.format("console").outputMode("update").start().awaitTermination()
 
 
 
